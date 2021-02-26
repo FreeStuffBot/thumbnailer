@@ -12,32 +12,7 @@ exports.generateImage = async (req) => {
   if (!req.gameid)
     throw { status: 400, message: 'missing game id' }
 
-  // const { [req.gameid]: data } = await api.getGameDetails([ req.gameid ], 'info')
-  const data = {
-    "thumbnail": {
-      "org_url": "https://cdn.akamai.steamstatic.com/steam/apps/582660/header.jpg?t=1614285640",
-      "url": ""
-    },
-    "title": "Black Desert Online",
-    "until": "2021-03-10T07:00:00.000Z",
-    "tags": [ "MMO", "Multiplayer", "Adventure" ],
-    "org_price": {
-      "euro": 7.99,
-      "dollar": 9.99
-    },
-    "price": {
-      "euro": 7.99,
-      "dollar": 9.99
-    },
-    "type": "free",
-    "store_meta": {
-      "steam_subids": "547803 149597"
-    },
-    "org_url": "https://store.steampowered.com/app/582660/Black_Desert_Online/",
-    "store": "steam",
-    "flags": 0,
-    "id": 785037
-  }
+  const { [req.gameid]: data } = await api.getGameDetails([ req.gameid ], 'info')
 
   if (!data)
     throw { status: 400, message: 'invalid game id' }
@@ -50,7 +25,7 @@ exports.generateImage = async (req) => {
     jobs: []
   }
 
-  if ((req.tags || req.all) && data.tags.length) {
+  if ((req.tags || req.all) && data.tags && data.tags.length) {
     props.additionalHeight += TAG_HEIGHT + ELEMENT_MARGIN
     props.originOffsetY += TAG_HEIGHT + ELEMENT_MARGIN
     props.jobs.push(drawTags)
