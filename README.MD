@@ -14,7 +14,7 @@ What's planned:
 ## How to use
 
 The service only has one endpoint over which it takes in a JWT (JsonWebToken) holding the request payload. The JWT is signed using a private key by another service so that users cannot simply modify the request. Once an image is generated it is cached for 5 hours after the latest request. The JWT signature protects the service from cache bypasses and thus reduces computational power where it's not needed. In order to generate a valid token, generate a RSA key pair and use the private key to encrypt the payload. Put the public key in the **public.key** file and you're ready to go. For an example how to programically generate tokens see **/test/createToken.js**. The payload shall look like the following with only gameid being required and the rest as optional:
-```json
+```jsonc
 {
   "gameid": 12345,
   "tags": true, // will append tags if existent
@@ -25,8 +25,8 @@ The service only has one endpoint over which it takes in a JWT (JsonWebToken) ho
 ## Example
 
 Options:
-```json
-{ "gameid": 785037, tags: true }
+```jsonc
+{ "gameid": 785037, "tags": true }
 ```
 To JWT:
 ```diff
