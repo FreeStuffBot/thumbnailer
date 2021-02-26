@@ -1,6 +1,6 @@
 # thumbnailer
 
-Nail your thumbnails ![](https://cdn.discordapp.com/emojis/755481867268128899.png?v=1&size=16)
+Nail your thumbnails ![](https://cdn.discordapp.com/emojis/755481867268128899.png?v=1&size=32)
 
 ## What is this?
 
