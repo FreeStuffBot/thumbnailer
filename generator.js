@@ -25,13 +25,13 @@ exports.generateImage = async (req) => {
     jobs: []
   }
 
-  if ((req.tags || req.all) && data.tags && data.tags.length) {
+  if ((req.tags || req.full) && data.tags && data.tags.length) {
     props.additionalHeight += TAG_HEIGHT + ELEMENT_MARGIN
     props.originOffsetY += TAG_HEIGHT + ELEMENT_MARGIN
     props.jobs.push(drawTags)
   }
 
-  const imgbuffer = await loadImage(data.thumbnail.org_url)
+  const imgbuffer = await loadImage(data.thumbnail.org)
   const canvas = createCanvas(imgbuffer.width + props.additionalWidth, imgbuffer.height + props.additionalHeight)
   const ctx = canvas.getContext('2d')
   const imgdimensions = [ props.originOffsetX, props.originOffsetY, imgbuffer.width, imgbuffer.height ]

@@ -18,8 +18,14 @@ The service only has one endpoint over which it takes in a JWT (JsonWebToken) ho
 {
   "gameid": 12345,
   "tags": true, // will append tags if existent
-  "all": true // shorthand for turning the following on: tags
+  "full": true // shorthand for turning the following on: tags
 }
+```
+
+You will also need to create the following environment variables:
+```env
+PORT=5051
+FREESTUFF_KEY="your api key here"
 ```
 
 ## Example
