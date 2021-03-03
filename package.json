@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "A thumbnail generator microservice",
   "main": "index.js",
+  "scripts": {
+    "start": "node ."
+  },
   "author": "Andreas May (@maanex)",
   "license": "MIT",
   "dependencies": {

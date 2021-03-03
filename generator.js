@@ -58,6 +58,7 @@ function drawTags(ctx, props, data, req) {
   let tag = (name) => {
     const { width } = ctx.measureText(name)
     const tagBackground = [ cursor, 0, width + INNER_MARGIN * 2 + ELEMENT_MARGIN + CIRCLE_RAD, TAG_HEIGHT ]
+    if (tagBackground[0] + tagBackground[2] > ctx.canvas.width) return
 
     roundedPath(ctx, ...tagBackground, IMG_BORDER_RADIUS)
     ctx.fillStyle = '#202225'

@@ -9,7 +9,10 @@ const fs = require('fs');
 
 if (!isDocker()) loadDotenv()
 
-exports.api = new FreeStuffApi({ key: process.env.FREESTUFF_KEY })
+exports.api = new FreeStuffApi(process.env.NODE_ENV === 'dev'
+  ? { key: process.env.FREESTUFF_KEY, baseUrl: 'http://localhost/api/v1/', type: 'partner', sid: '1' }
+  : { key: process.env.FREESTUFF_KEY }
+)
 const { generateImage } = require('./generator.js')
 
 const publicKey = fs.readFileSync('./public.key');
@@ -60,7 +63,10 @@ function sendBuffer(base64, res) {
   const buffer = Buffer.from(base64, 'base64')
   res
     .status(200)
-    .header([ 'Content-Type=image/png', 'Content-Length=' + buffer.length ])
+    .header({
+      'Content-Type': 'image/png',
+      'Content-Length': buffer.length
+    })
     .end(buffer)
 }
 
