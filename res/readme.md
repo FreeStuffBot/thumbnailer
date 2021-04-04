@@ -1,6 +1,6 @@
 # Missing files
 
-Some files are excluded due to licenses and copyright
+Some files are excluded due to licenses and/or copyright
 
 ### font.ttf
 

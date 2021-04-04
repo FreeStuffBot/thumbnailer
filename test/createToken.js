@@ -1,7 +1,8 @@
 
 const payload = {
-  gameid: '785037',
-  tags: true
+  gameid: '834580',
+  watermark: 'br',
+  full: true
 }
 
 const jwt = require('jsonwebtoken');

@@ -18,7 +18,8 @@ The service only has one endpoint over which it takes in a JWT (JsonWebToken) ho
 {
   "gameid": 12345,
   "tags": true, // will append tags if existent
-  "full": true // shorthand for turning the following on: tags
+  "watermark": true, // will put a little watermark on the image. can also take a string instead of true: 'tl' topleft, 'tr' topright, 'bl' bottomleft, 'br' bottomright
+  "full": true // shorthand for turning all of the above on
 }
 ```
 
