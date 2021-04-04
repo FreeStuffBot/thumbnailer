@@ -2,8 +2,9 @@ const express = require('express')
 const { config: loadDotenv } = require('dotenv')
 const isDocker = require('is-docker')
 const { FreeStuffApi } = require('freestuff')
-const jwt = require('jsonwebtoken');
-const fs = require('fs');
+const jwt = require('jsonwebtoken')
+const fs = require('fs')
+const metrics = require('./metrics')
 
 // Setup
 
@@ -29,9 +30,15 @@ app.listen(port, () => console.log(`Server listening on port ${port}`))
 let cache = new Map() /* <string, buffer> */
 let cacheClear = new Map() /* <string, number> */
 
+app.get('/metrics', metrics.endpoint)
+
 app.get('/:token', async (req, res) => {
   if (!req.params.token)
     return res.status(400).json({ error: 'missing token' })
+  if (req.params.token === 'metrics')
+    return
+
+  metrics.tracker.counterRequests.inc()
 
   if (cache.has(req.params.token)) {
     cacheClear.set(req.params.token, 0)
@@ -41,16 +48,21 @@ app.get('/:token', async (req, res) => {
   const parsed = parseJWT(req.params.token)
   if (!parsed) return res.status(400).json({ error: 'invalid signature' })
 
+  const end = metrics.tracker.histogramImageGenerationSeconds.startTimer()
   generateImage(parsed)
     .then(image => {
+      end({ statusCode: '200' })
       cache.set(req.params.token, image)
       cacheClear.set(req.params.token, 0)
+      metrics.tracker.gaugeCachedImages.inc()
       sendBuffer(image, res)
     })
-    .catch(ex => res
-      .status(ex.status || 500)
-      .json({ error: ex.message || 'internal server error' })
-    )
+    .catch(ex => {
+      end({ statusCode: '500' })
+      res
+        .status(ex.status || 500)
+        .json({ error: ex.message || 'internal server error' })
+    })
 })
 
 app.get('/', (_, res) => res.redirect('https://github.com/FreeStuffBot/thumbnailer'))
@@ -86,6 +98,7 @@ function swipeCache() {
     if (current > 4) {
       cacheClear.delete(key)
       cache.delete(key)
+      metrics.tracker.gaugeCachedImages.dec()
     } else {
       cacheClear.set(key, current + 1)
     }
