@@ -98,14 +98,14 @@ async function drawWatermark(ctx, props, data, req) {
   const height = 16
   const width = buff.width * (height / buff.height)
   
-  let x = 0
-  let y = 0
+  let x = props.imgdimensions[0]
+  let y = props.imgdimensions[1]
 
-  if (position.startsWith('t')) y = WATERMARK_PADDING
-  else y = props.imgdimensions[3] - WATERMARK_PADDING - height
+  if (position.startsWith('t')) y += WATERMARK_PADDING
+  else y += props.imgdimensions[3] - WATERMARK_PADDING - height
 
-  if (position.endsWith('l')) x = WATERMARK_PADDING
-  else x = props.imgdimensions[2] - WATERMARK_PADDING - width
+  if (position.endsWith('l')) x += WATERMARK_PADDING
+  else x += props.imgdimensions[2] - WATERMARK_PADDING - width
 
   ctx.drawImage(buff, x, y, width, height)
 }
