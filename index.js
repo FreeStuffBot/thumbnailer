@@ -53,7 +53,9 @@ app.get('/:token', async (req, res) => {
     )
 })
 
-app.all('*', (req, res) => {
+app.get('/', (_, res) => res.redirect('https://github.com/FreeStuffBot/thumbnailer'))
+
+app.all('*', (_, res) => {
   return res.status(404).json({ error: 'not found' })
 })
 

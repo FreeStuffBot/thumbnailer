@@ -6,10 +6,10 @@ Nail your thumbnails ![](https://cdn.discordapp.com/emojis/755481867268128899.pn
 
 This is a microservice rendering and serving generated thumbnails for the freestuff bot. It takes in a game id and uses that to fetch the base thumbnail. Depending on the options it will then add content to the thumbnail. The service can currently modify the image in the following ways:
 - add game tags
+- watermarking
 
 What's planned:
-- watermarking (maybe)
-- add a text bar at the bottom with customizeable background color
+- a text bar at the bottom with customizeable background color
 
 ## How to use
 
