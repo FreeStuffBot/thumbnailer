@@ -30,13 +30,10 @@ app.listen(port, () => console.log(`Server listening on port ${port}`))
 let cache = new Map() /* <string, buffer> */
 let cacheClear = new Map() /* <string, number> */
 
-app.get('/metrics', metrics.endpoint)
+app.get('/metrics/:auth', metrics.endpoint)
 
 app.get('/:token', async (req, res) => {
-  if (!req.params.token)
-    return res.status(400).json({ error: 'missing token' })
-  if (req.params.token === 'metrics')
-    return
+  if (!req.params.token) return res.status(400).end()
 
   metrics.tracker.counterRequests.inc()
 
@@ -46,7 +43,7 @@ app.get('/:token', async (req, res) => {
   }
 
   const parsed = parseJWT(req.params.token)
-  if (!parsed) return res.status(400).json({ error: 'invalid signature' })
+  if (!parsed) return res.status(401).json({ error: 'invalid signature' })
 
   const end = metrics.tracker.histogramImageGenerationSeconds.startTimer()
   generateImage(parsed)
