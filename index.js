@@ -31,6 +31,7 @@ let cache = new Map() /* <string, buffer> */
 let cacheClear = new Map() /* <string, number> */
 
 app.get('/metrics/:auth', metrics.endpoint)
+app.get('/favicon*', (_, res) => res.status(404).end())
 
 app.get('/:token', async (req, res) => {
   if (!req.params.token) return res.status(400).end()
