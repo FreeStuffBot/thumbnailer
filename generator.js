@@ -41,9 +41,10 @@ exports.generateImage = async (req) => {
   }
 
   const imgbuffer = await loadImage(data.thumbnail.org)
-  const canvas = createCanvas(imgbuffer.width + props.additionalWidth, imgbuffer.height + props.additionalHeight)
+  const imgscale = 460 / imgbuffer.width
+  const canvas = createCanvas(~~(imgbuffer.width * imgscale) + props.additionalWidth, ~~(imgbuffer.height * imgscale) + props.additionalHeight)
   const ctx = canvas.getContext('2d')
-  const imgdimensions = [ props.originOffsetX, props.originOffsetY, imgbuffer.width, imgbuffer.height ]
+  const imgdimensions = [ props.originOffsetX, props.originOffsetY, ~~(imgbuffer.width * imgscale), ~~(imgbuffer.height * imgscale) ]
   props.imgdimensions = imgdimensions
 
   ctx.save();

@@ -6,7 +6,8 @@ const register = new Registry()
 
 const counterRequests = new client.Counter({
   name: 'thumbnailer_total_requests',
-  help: 'Keeps track of the total amount of incoming requests'
+  help: 'Keeps track of the total amount of incoming requests',
+  labelNames: [ 'gameid', 'tracker' ]
 });
 register.registerMetric(counterRequests)
 
@@ -16,13 +17,6 @@ const gaugeCachedImages = new client.Gauge({
 });
 register.registerMetric(gaugeCachedImages)
 gaugeCachedImages.reset()
-
-const histogramImageGenerationSeconds = new client.Histogram({
-  name: 'thumbnailer_image_generation_seconds',
-  help: 'Tracks the duration it took to generate images',
-  labelNames: [ 'statusCode' ]
-});
-register.registerMetric(histogramImageGenerationSeconds)
 
 module.exports.endpoint = async (req, res) => {
   const auth = req.params.auth
@@ -37,6 +31,5 @@ module.exports.endpoint = async (req, res) => {
 
 module.exports.tracker = {
   counterRequests,
-  gaugeCachedImages,
-  histogramImageGenerationSeconds
+  gaugeCachedImages
 }

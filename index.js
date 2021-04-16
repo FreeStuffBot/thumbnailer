@@ -27,7 +27,7 @@ app.listen(port, () => console.log(`Server listening on port ${port}`))
 
 // Server
 
-let cache = new Map() /* <string, buffer> */
+let cache = new Map() /* <string, [buffer, gameid:number]> */
 let cacheClear = new Map() /* <string, number> */
 
 app.get('/metrics/:auth', metrics.endpoint)
@@ -36,27 +36,30 @@ app.get('/favicon*', (_, res) => res.status(404).end())
 app.get('/:token', async (req, res) => {
   if (!req.params.token) return res.status(400).end()
 
-  metrics.tracker.counterRequests.inc()
+  const metricsTracker = req.query.t || ''
 
   if (cache.has(req.params.token)) {
     cacheClear.set(req.params.token, 0)
-    return void sendBuffer(cache.get(req.params.token), res)
+    metrics.tracker.counterRequests.labels(cache.get(req.params.token)[1],metricsTracker).inc()
+    return void sendBuffer(cache.get(req.params.token)[0], res)
   }
 
   const parsed = parseJWT(req.params.token)
-  if (!parsed) return res.status(401).json({ error: 'invalid signature' })
+  if (!parsed) {
+    metrics.tracker.counterRequests.labels(-1, metricsTracker).inc()
+    return res.status(401).json({ error: 'invalid signature' })
+  }
 
-  const end = metrics.tracker.histogramImageGenerationSeconds.startTimer()
   generateImage(parsed)
     .then(image => {
-      end({ statusCode: '200' })
-      cache.set(req.params.token, image)
+      cache.set(req.params.token, [image, parsed.gameid])
+      metrics.tracker.counterRequests.labels(parsed.gameid, metricsTracker).inc()
       cacheClear.set(req.params.token, 0)
       metrics.tracker.gaugeCachedImages.inc()
       sendBuffer(image, res)
     })
     .catch(ex => {
-      end({ statusCode: '500' })
+      metrics.tracker.counterRequests.labels(-2, metricsTracker).inc()
       res
         .status(ex.status || 500)
         .json({ error: ex.message || 'internal server error' })
