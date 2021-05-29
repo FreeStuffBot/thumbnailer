@@ -1,5 +1,7 @@
 const { createCanvas, loadImage, registerFont } = require('canvas')
+const ColorThief = require('colorthief')
 const { api } = require('./index.js')
+const { roundedPath, findLeastNoisyCorner, tintWatermark, findComplementingColor } = require('./utils.js')
 
 registerFont('./res/font.ttf', { family: 'defaultFont' })
 
@@ -7,7 +9,6 @@ const TAG_HEIGHT = 27
 const IMG_BORDER_RADIUS = 5
 const ELEMENT_MARGIN = 5
 const WATERMARK_PADDING = 6
-const WATERMARK_POSITION = 'BL' // topleft TL, topright TR, bottomleft BL, bottomright BR
 
 
 exports.generateImage = async (req) => {
@@ -24,7 +25,8 @@ exports.generateImage = async (req) => {
     additionalWidth: 0,
     originOffsetX: 0,
     originOffsetY: 0,
-    jobs: []
+    jobs: [],
+    palette: []
   }
 
   const renderTags = req.tags || req.full
@@ -46,6 +48,11 @@ exports.generateImage = async (req) => {
   const ctx = canvas.getContext('2d')
   const imgdimensions = [ props.originOffsetX, props.originOffsetY, ~~(imgbuffer.width * imgscale), ~~(imgbuffer.height * imgscale) ]
   props.imgdimensions = imgdimensions
+  props.canvas = canvas
+
+  try {
+    props.palette = await ColorThief.getPalette(data.thumbnail.org)
+  } catch (ex) { }
 
   ctx.save();
   roundedPath(ctx, ...imgdimensions, IMG_BORDER_RADIUS);
@@ -90,11 +97,6 @@ function drawTags(ctx, props, data, req) {
 }
 
 async function drawWatermark(ctx, props, data, req) {
-  const position = (typeof req.watermark === 'string'
-    ? req.watermark
-    : WATERMARK_POSITION)
-    .toLowerCase()
-
   const buff = await loadImage('./res/watermark.png')
   const height = 16
   const width = buff.width * (height / buff.height)
@@ -102,27 +104,19 @@ async function drawWatermark(ctx, props, data, req) {
   let x = props.imgdimensions[0]
   let y = props.imgdimensions[1]
 
+  // topleft TL, topright TR, bottomleft BL, bottomright BR
+  const cornerData = await findLeastNoisyCorner(props.canvas.toBuffer(), x, y, props.imgdimensions[2], props.imgdimensions[3], width, height, WATERMARK_PADDING)
+  const position = (typeof req.watermark === 'string')
+    ? req.watermark.toLowerCase()
+    : cornerData[0]
+
   if (position.startsWith('t')) y += WATERMARK_PADDING
   else y += props.imgdimensions[3] - WATERMARK_PADDING - height
 
   if (position.endsWith('l')) x += WATERMARK_PADDING
   else x += props.imgdimensions[2] - WATERMARK_PADDING - width
 
-  ctx.drawImage(buff, x, y, width, height)
-}
-
-//
-
-function roundedPath(ctx, x, y, width, height, radius) {
-  ctx.beginPath()
-  ctx.moveTo(x + radius, y)
-  ctx.lineTo(x + width - radius, y)
-  ctx.quadraticCurveTo(x + width, y, x + width, y + radius)
-  ctx.lineTo(x + width, y + height - radius)
-  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height)
-  ctx.lineTo(x + radius, y + height)
-  ctx.quadraticCurveTo(x, y + height, x, y + height - radius)
-  ctx.lineTo(x, y + radius)
-  ctx.quadraticCurveTo(x, y, x + radius, y)
-  ctx.closePath()
+  const watermarkColor = findComplementingColor(props.palette, cornerData[1] > 170)
+  const tinted = tintWatermark(buff, watermarkColor)
+  ctx.drawImage(tinted, x, y, width, height)
 }

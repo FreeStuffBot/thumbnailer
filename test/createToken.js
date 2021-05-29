@@ -1,7 +1,7 @@
 
 const payload = {
-  gameid: '834580',
-  watermark: 'bl',
+  gameid: '989652',
+  watermark: true,
   full: true
 }
 

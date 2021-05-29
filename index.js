@@ -59,6 +59,7 @@ app.get('/:token', async (req, res) => {
       sendBuffer(image, res)
     })
     .catch(ex => {
+      console.trace(ex)
       metrics.tracker.counterRequests.labels(-2, metricsTracker).inc()
       res
         .status(ex.status || 500)
