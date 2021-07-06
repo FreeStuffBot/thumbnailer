@@ -22,4 +22,8 @@ COPY . .
 
 RUN apk del .gyp
 
+ENV PORT=9915
+
 CMD [ "npm", "start" ]
+
+EXPOSE 9915
