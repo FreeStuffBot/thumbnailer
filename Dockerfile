@@ -1,6 +1,7 @@
 FROM node:alpine
 
-WORKDIR /thumbnailer
+RUN mkdir -p /usr/thumbnailer
+WORKDIR /usr/thumbnailer
 
 RUN apk add --update --no-cache --virtual .gyp \
     make \

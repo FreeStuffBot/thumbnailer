@@ -1,7 +1,5 @@
-# Missing files
-
-Some files are excluded due to licenses and/or copyright
+# Copyright
 
 ### font.ttf
 
-Drop any font here for the service to use. We use montserrat which you can get from google fonts.
+font.ttf is Montserrat by Julieta Ulanovsky (https://fonts.google.com/specimen/Montserrat) licensed under the Open Font License.
