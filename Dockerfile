@@ -20,7 +20,7 @@ RUN npm install
 
 COPY . .
 
-RUN apk del .gyp
+#RUN apk del .gyp
 
 ENV PORT=9915
 
