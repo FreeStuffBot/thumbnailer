@@ -1,9 +1,9 @@
-const { createCanvas, loadImage, registerFont } = require('canvas')
+const { Canvas, loadImage, FontLibrary } = require('skia-canvas')
 const ColorThief = require('colorthief')
 const { api } = require('./index.js')
 const { roundedPath, findLeastNoisyCorner, tintWatermark, findComplementingColor } = require('./utils.js')
 
-registerFont('./res/font.ttf', { family: 'defaultFont' })
+FontLibrary.use('defaultFont', [ './res/font.ttf' ])
 
 const TAG_HEIGHT = 27
 const IMG_BORDER_RADIUS = 5
@@ -44,7 +44,7 @@ exports.generateImage = async (req) => {
 
   const imgbuffer = await loadImage(data.thumbnail.org)
   const imgscale = 460 / imgbuffer.width
-  const canvas = createCanvas(~~(imgbuffer.width * imgscale) + props.additionalWidth, ~~(imgbuffer.height * imgscale) + props.additionalHeight)
+  const canvas = new Canvas(~~(imgbuffer.width * imgscale) + props.additionalWidth, ~~(imgbuffer.height * imgscale) + props.additionalHeight)
   const ctx = canvas.getContext('2d')
   const imgdimensions = [ props.originOffsetX, props.originOffsetY, ~~(imgbuffer.width * imgscale), ~~(imgbuffer.height * imgscale) ]
   props.imgdimensions = imgdimensions
@@ -62,7 +62,7 @@ exports.generateImage = async (req) => {
 
   await Promise.all(props.jobs.map(j => j(ctx, props, data, req)))
 
-  const buffer = canvas.toBuffer('image/png', { compressionLevel: 3 })
+  const buffer = await canvas.toBuffer('image/png', { compressionLevel: 3 })
   return Buffer.from(buffer, 'binary').toString('base64')
 }
 
@@ -105,7 +105,8 @@ async function drawWatermark(ctx, props, data, req) {
   let y = props.imgdimensions[1]
 
   // topleft TL, topright TR, bottomleft BL, bottomright BR
-  const cornerData = await findLeastNoisyCorner(props.canvas.toBuffer(), x, y, props.imgdimensions[2], props.imgdimensions[3], width, height, WATERMARK_PADDING)
+  const canvBuff = await props.canvas.toBuffer()
+  const cornerData = await findLeastNoisyCorner(canvBuff, x, y, props.imgdimensions[2], props.imgdimensions[3], width, height, WATERMARK_PADDING)
   const position = (typeof req.watermark === 'string')
     ? req.watermark.toLowerCase()
     : cornerData[0]

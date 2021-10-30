@@ -1,4 +1,4 @@
-const { createCanvas } = require('canvas')
+const { Canvas } = require('skia-canvas')
 const { Image } = require('image-js')
 const cannyEdgeDetector = require('canny-edge-detector')
 
@@ -41,7 +41,7 @@ exports.findComplementingColor = (palette, bright) => {
 }
 
 exports.tintWatermark = (buffer, color) => {
-  const canvas = createCanvas(buffer.width, buffer.height)
+  const canvas = new Canvas(buffer.width, buffer.height)
   const ctx = canvas.getContext('2d')
   ctx.drawImage(buffer, 0, 0, buffer.width, buffer.height)
 
