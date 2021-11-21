@@ -1,16 +1,11 @@
 const express = require('express')
 const { config: loadDotenv } = require('dotenv')
 const isDocker = require('is-docker')
-const { FreeStuffApi } = require('freestuff')
 
 // Setup
 
 if (!isDocker()) loadDotenv()
 
-exports.api = new FreeStuffApi(process.env.NODE_ENV === 'dev'
-  ? { key: process.env.FREESTUFF_KEY, baseUrl: 'http://localhost/v1/', type: 'partner', sid: '1' }
-  : { key: process.env.FREESTUFF_KEY }
-)
 const { generateImage } = require('./generator.js')
 
 const app = express()

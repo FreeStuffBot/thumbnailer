@@ -1,6 +1,5 @@
 const { Canvas, loadImage, FontLibrary } = require('skia-canvas')
 const ColorThief = require('colorthief')
-const { api } = require('./index.js')
 const { roundedPath, findLeastNoisyCorner, tintWatermark, findComplementingColor } = require('./utils.js')
 
 FontLibrary.use('defaultFont', [ './res/font.ttf' ])
