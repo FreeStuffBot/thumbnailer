@@ -17,21 +17,17 @@ const app = express()
 const port = process.env.PORT || 5051
 // app.use(require('morgan')('tiny'))
 app.use(require('helmet')())
+app.use(express.json())
 app.listen(port, () => console.log(`Server listening on port ${port}`))
 
 // Server
 
-app.get('/:token', async (req, res) => {
-  if (!req.params.token) return res.status(400).end()
+app.post('/render', async (req, res) => {
+  if (!req.body) return
 
-  const parsed = parseToken(req.params.token)
-  if (!parsed)
-    return res.status(401).json({ error: 'invalid token' })
-
-  generateImage(parsed)
+  generateImage(req.body)
     .then(image => sendBuffer(image, res))
-    // .catch(ex => res.status(ex.status || 500).json({ error: ex.message || 'internal server error' }))
-    .catch(ex => console.error(ex))
+    .catch(ex => res.status(ex.status || 500).json({ error: ex.message || 'internal server error' }))
 })
 
 app.get('/', (_, res) => res.redirect('https://github.com/FreeStuffBot/thumbnailer'))

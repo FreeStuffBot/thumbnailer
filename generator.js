@@ -11,14 +11,15 @@ const ELEMENT_MARGIN = 5
 const WATERMARK_PADDING = 6
 
 
-exports.generateImage = async (req) => {
-  if (!req.gameid)
-    throw { status: 400, message: 'missing game id' }
+exports.generateImage = async (body) => {
+  if (!body)
+    throw { status: 400, message: 'invalid body' }
+    
+  const data = body.data || {}
+  const options = body.options || {}
 
-  const { [req.gameid]: data } = await api.getGameDetails([ req.gameid ], 'info')
-
-  if (!data)
-    throw { status: 400, message: 'invalid game id' }
+  if (!data.thumbnail)
+    throw { status: 400, message: 'missing thumbnail' }
 
   const props = {
     additionalHeight: 0,
@@ -29,8 +30,8 @@ exports.generateImage = async (req) => {
     palette: []
   }
 
-  const renderTags = req.tags || req.full
-  const renderWatermark = req.watermark || req.full
+  const renderTags = options.tags || options.full
+  const renderWatermark = options.watermark || options.full
 
   if (renderTags && data.tags && data.tags.length) {
     props.additionalHeight += TAG_HEIGHT + ELEMENT_MARGIN
@@ -60,13 +61,13 @@ exports.generateImage = async (req) => {
   ctx.drawImage(imgbuffer, ...imgdimensions)
   ctx.restore();
 
-  await Promise.all(props.jobs.map(j => j(ctx, props, data, req)))
+  await Promise.all(props.jobs.map(j => j(ctx, props, data, options)))
 
   const buffer = await canvas.toBuffer('image/png', { compressionLevel: 3 })
   return Buffer.from(buffer, 'binary').toString('base64')
 }
 
-function drawTags(ctx, props, data, req) {
+function drawTags(ctx, props, data, options) {
   let cursor = 0
   const CIRCLE_RAD = TAG_HEIGHT / 5 * 2
   const FONT_HEIGHT = TAG_HEIGHT - ELEMENT_MARGIN * 3
@@ -96,7 +97,7 @@ function drawTags(ctx, props, data, req) {
   data.tags.map(t => t.toUpperCase()).forEach(tag)
 }
 
-async function drawWatermark(ctx, props, data, req) {
+async function drawWatermark(ctx, props, data, options) {
   const buff = await loadImage('./res/watermark.png')
   const height = 16
   const width = buff.width * (height / buff.height)
@@ -107,8 +108,8 @@ async function drawWatermark(ctx, props, data, req) {
   // topleft TL, topright TR, bottomleft BL, bottomright BR
   const canvBuff = await props.canvas.toBuffer()
   const cornerData = await findLeastNoisyCorner(canvBuff, x, y, props.imgdimensions[2], props.imgdimensions[3], width, height, WATERMARK_PADDING)
-  const position = (typeof req.watermark === 'string')
-    ? req.watermark.toLowerCase()
+  const position = (typeof options.watermark === 'string')
+    ? options.watermark.toLowerCase()
     : cornerData[0]
 
   if (position.startsWith('t')) y += WATERMARK_PADDING
