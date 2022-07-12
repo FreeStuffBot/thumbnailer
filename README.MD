@@ -1,3 +1,6 @@
+
+> The codebase for thumbnailer was merged into the FreeStuff monorepo. This repository remains as readonly.
+
 # thumbnailer
 
 Nail your thumbnails ![](https://cdn.discordapp.com/emojis/755481867268128899.png?v=1&size=32)
